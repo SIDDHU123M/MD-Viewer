@@ -104,13 +104,13 @@ pre {
 
 /* Dark mode styles */
 body.dark-mode {
-  background-color: #343a40;
-  color: #f8f9fa;
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 body.dark-mode #markdownContent {
-  background-color: #495057;
-  color: #f8f9fa;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
 }
 
 body.dark-mode #markdownContent h1 {
@@ -160,6 +160,7 @@ body.dark-mode pre {
 
 .history-item span {
   flex-grow: 1;
+  color: #000; /* Black color for preview text */
 }
 
 .history-item button {
@@ -212,15 +213,15 @@ body.dark-mode pre {
 <div class="container mt-5">
   <h1 class="text-center mb-4">Markdown Editor</h1>
   <div class="button-group">
-    <button class="btn btn-secondary btn-toggle" id="toggleBtn">
+    <button class="btn btn-secondary btn-toggle" id="toggleBtn" aria-label="Toggle Dark/Light Mode">
       <img src="svg/dark-mode.svg" alt="Toggle Dark/Light Mode" width="20" height="20">
       Toggle Dark/Light Mode
     </button>
-    <button class="btn btn-secondary btn-history" id="historyBtn">
+    <button class="btn btn-secondary btn-history" id="historyBtn" aria-label="Show History">
       <img src="svg/database.svg" alt="Show History" width="20" height="20">
       History / Home
     </button>
-    <button class="btn btn-secondary btn-export" id="exportBtn">
+    <button class="btn btn-secondary btn-export" id="exportBtn" aria-label="Export to PDF">
       <img src="svg/software-download.svg" alt="Export to PDF" width="20" height="20">
       Export to PDF
     </button>
@@ -246,158 +247,7 @@ body.dark-mode pre {
 </div>
 
 <!-- JavaScript -->
-<script>
-  let isHistoryVisible = false;
-
-  // Function to handle submit button click
-  document.getElementById('submitBtn').addEventListener('click', function() {
-    const markdownText = document.getElementById('markdownInput').value;
-
-    // Convert markdown to HTML
-    const renderedHTML = marked.parse(markdownText);
-
-    // Inject rendered HTML into content section
-    document.getElementById('markdownContent').innerHTML = renderedHTML;
-
-    // Highlight code blocks
-    Prism.highlightAll();
-
-    // Hide the input section and show the rendered markdown
-    document.getElementById('inputSection').style.display = 'none';
-    document.getElementById('renderedSection').style.display = 'block';
-
-    // Save to local storage
-    saveToHistory(markdownText);
-
-    // Add copy buttons to code blocks
-    addCopyButtons();
-  });
-
-  // Function to add copy buttons to code blocks
-  function addCopyButtons() {
-    const codeBlocks = document.querySelectorAll('pre');
-    codeBlocks.forEach(block => {
-      const copyButton = document.createElement('button');
-      copyButton.className = 'copy-btn';
-      copyButton.innerText = 'Copy';
-      
-      copyButton.addEventListener('click', function() {
-        const codeText = block.querySelector('code').innerText;
-        navigator.clipboard.writeText(codeText).then(() => {
-          alert('Code copied to clipboard!');
-        });
-      });
-      
-      block.appendChild(copyButton);
-    });
-  }
-
-  // Save markdown to local storage
-  function saveToHistory(markdown) {
-    let history = JSON.parse(localStorage.getItem('markdownHistory')) || [];
-    history.push(markdown);
-    localStorage.setItem('markdownHistory', JSON.stringify(history));
-    loadHistory();
-  }
-
-  // Load history from local storage
-  function loadHistory() {
-    const historyList = document.getElementById('historyList');
-    historyList.innerHTML = '';
-    let history = JSON.parse(localStorage.getItem('markdownHistory')) || [];
-    
-    history.forEach((item, index) => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.innerHTML = `
-        <span>${item.substring(0, 30)}...</span>
-        <div>
-          <button onclick="viewMarkdown(${index})">View</button>
-          <button onclick="editMarkdown(${index})">Edit</button>
-          <button onclick="deleteMarkdown(${index})">Delete</button>
-        </div>
-      `;
-      historyList.appendChild(div);
-    });
-  }
-
-  // Toggle History Display
-  document.getElementById('historyBtn').addEventListener('click', function() {
-    const historyList = document.getElementById('historyList');
-    const inputSection = document.getElementById('inputSection');
-    const renderedSection = document.getElementById('renderedSection');
-
-    if (isHistoryVisible) {
-      inputSection.style.display = 'block';
-      renderedSection.style.display = 'none';
-      historyList.style.display = 'none';
-    } else {
-      inputSection.style.display = 'none';
-      renderedSection.style.display = 'none';
-      historyList.style.display = 'block';
-      loadHistory();
-    }
-
-    isHistoryVisible = !isHistoryVisible;
-  });
-
-  // Delete markdown from history
-  function deleteMarkdown(index) {
-    let history = JSON.parse(localStorage.getItem('markdownHistory'));
-    history.splice(index, 1);
-    localStorage.setItem('markdownHistory', JSON.stringify(history));
-    loadHistory();
-  }
-
-  // Edit markdown from history
-  function editMarkdown(index) {
-    let history = JSON.parse(localStorage.getItem('markdownHistory'));
-    document.getElementById('markdownInput').value = history[index];
-    document.getElementById('inputSection').style.display = 'block';
-    document.getElementById('renderedSection').style.display = 'none';
-    document.getElementById('historyList').style.display = 'none'; // Hide history on edit
-    isHistoryVisible = false;
-  }
-
-  // View markdown from history
-  function viewMarkdown(index) {
-    let history = JSON.parse(localStorage.getItem('markdownHistory'));
-    const renderedHTML = marked.parse(history[index]);
-    document.getElementById('markdownContent').innerHTML = renderedHTML;
-    document.getElementById('inputSection').style.display = 'none';
-    document.getElementById('renderedSection').style.display = 'block';
-    document.getElementById('historyList').style.display = 'none'; // Hide history on view
-    isHistoryVisible = false;
-  }
-
-  // Clear all history
-  document.getElementById('clearHistoryBtn').addEventListener('click', function() {
-    localStorage.removeItem('markdownHistory');
-    loadHistory();
-  });
-
-  // Toggle Dark/Light Mode
-  document.getElementById('toggleBtn').addEventListener('click', function() {
-    document.body.classList.toggle('dark-mode');
-  });
-
-  // Export content to PDF
-  document.getElementById('exportBtn').addEventListener('click', function() {
-    const element = document.getElementById('markdownContent');
-    const opt = {
-      margin:       0.5,
-      filename:     'markdown-content.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().from(element).set(opt).save();
-  });
-
-  // Load history on page load
-  window.onload = loadHistory;
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
