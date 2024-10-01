@@ -1,30 +1,16 @@
 let isHistoryVisible = false;
 
-// Function to handle submit button click
 document.getElementById('submitBtn').addEventListener('click', function() {
   const markdownText = document.getElementById('markdownInput').value;
-
-  // Convert markdown to HTML
   const renderedHTML = marked.parse(markdownText);
-
-  // Inject rendered HTML into content section
   document.getElementById('markdownContent').innerHTML = renderedHTML;
-
-  // Highlight code blocks
   Prism.highlightAll();
-
-  // Hide the input section and show the rendered markdown
   document.getElementById('inputSection').style.display = 'none';
   document.getElementById('renderedSection').style.display = 'block';
-
-  // Save to local storage
   saveToHistory(markdownText);
-
-  // Add copy buttons to code blocks
   addCopyButtons();
 });
 
-// Function to add copy buttons to code blocks
 function addCopyButtons() {
   const codeBlocks = document.querySelectorAll('pre');
   codeBlocks.forEach(block => {
@@ -48,7 +34,6 @@ function addCopyButtons() {
   });
 }
 
-// Save markdown to local storage
 function saveToHistory(markdown) {
   let history = JSON.parse(localStorage.getItem('markdownHistory')) || [];
   history.push(markdown);
@@ -56,7 +41,6 @@ function saveToHistory(markdown) {
   loadHistory();
 }
 
-// Load history from local storage
 function loadHistory() {
   const historyList = document.getElementById('historyList');
   historyList.innerHTML = '';
@@ -86,7 +70,6 @@ function loadHistory() {
   });
 }
 
-// Toggle History Display
 document.getElementById('historyBtn').addEventListener('click', function() {
   const historyList = document.getElementById('historyList');
   const inputSection = document.getElementById('inputSection');
@@ -106,7 +89,6 @@ document.getElementById('historyBtn').addEventListener('click', function() {
   isHistoryVisible = !isHistoryVisible;
 });
 
-// Delete markdown from history
 function deleteMarkdown(index) {
   let history = JSON.parse(localStorage.getItem('markdownHistory'));
   history.splice(index, 1);
@@ -114,46 +96,40 @@ function deleteMarkdown(index) {
   loadHistory();
 }
 
-// Edit markdown from history
 function editMarkdown(index) {
   let history = JSON.parse(localStorage.getItem('markdownHistory'));
   document.getElementById('markdownInput').value = history[index];
   document.getElementById('inputSection').style.display = 'block';
   document.getElementById('renderedSection').style.display = 'none';
-  document.getElementById('historyList').style.display = 'none'; // Hide history on edit
+  document.getElementById('historyList').style.display = 'none';
   isHistoryVisible = false;
 }
 
-// View markdown from history
 function viewMarkdown(index) {
   let history = JSON.parse(localStorage.getItem('markdownHistory'));
   const renderedHTML = marked.parse(history[index]);
   document.getElementById('markdownContent').innerHTML = renderedHTML;
-  Prism.highlightAll(); // Ensure Prism.js styles are applied
+  Prism.highlightAll();
   document.getElementById('inputSection').style.display = 'none';
   document.getElementById('renderedSection').style.display = 'block';
-  document.getElementById('historyList').style.display = 'none'; // Hide history on view
+  document.getElementById('historyList').style.display = 'none';
   isHistoryVisible = false;
 }
 
-// Export markdown from history to PDF
 function exportMarkdown(index) {
   let history = JSON.parse(localStorage.getItem('markdownHistory'));
   const markdownContent = marked.parse(history[index]);
   const element = document.createElement('div');
   element.innerHTML = markdownContent;
 
-  // Apply styles to the element
   element.style.padding = '20px';
   element.style.backgroundColor = 'white';
   element.style.borderRadius = '8px';
   element.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.1)';
   element.style.marginTop = '20px';
 
-  // Ensure Prism.js styles are applied
   Prism.highlightAllUnder(element);
 
-  // Clone the styles from the document
   const style = document.createElement('style');
   style.innerHTML = Array.from(document.styleSheets)
     .map(styleSheet => {
@@ -177,35 +153,41 @@ function exportMarkdown(index) {
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
+
+  const isDarkMode = document.body.classList.contains('dark-mode');
+  if (isDarkMode) {
+    element.classList.add('dark-mode');
+  }
+
   html2pdf().from(element).set(opt).save().catch(err => {
     alert('Failed to export PDF: ' + err);
   });
 }
 
-// Clear all history
 document.getElementById('clearHistoryBtn').addEventListener('click', function() {
   localStorage.removeItem('markdownHistory');
   loadHistory();
 });
 
-// Toggle Dark/Light Mode
 document.getElementById('toggleBtn').addEventListener('click', function() {
   document.body.classList.toggle('dark-mode');
 });
 
-// Export content to PDF
 document.getElementById('exportBtn').addEventListener('click', function() {
   const element = document.getElementById('markdownContent');
 
-  // Apply styles to the element
-  element.style.padding = '20px';
-  element.style.backgroundColor = 'white';
-  element.style.borderRadius = '8px';
-  element.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.1)';
-  element.style.marginTop = '20px';
+  // Clone the element to avoid modifying the original
+  const clonedElement = element.cloneNode(true);
+
+  // Apply styles to the cloned element
+  clonedElement.style.padding = '20px';
+  clonedElement.style.backgroundColor = 'white';
+  clonedElement.style.borderRadius = '8px';
+  clonedElement.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.1)';
+  clonedElement.style.marginTop = '20px';
 
   // Ensure Prism.js styles are applied
-  Prism.highlightAllUnder(element);
+  Prism.highlightAllUnder(clonedElement);
 
   // Clone the styles from the document
   const style = document.createElement('style');
@@ -222,7 +204,15 @@ document.getElementById('exportBtn').addEventListener('click', function() {
     })
     .join('');
 
-  element.appendChild(style);
+  clonedElement.appendChild(style);
+
+  // Check if dark mode is active and apply dark mode styles
+  const isDarkMode = document.body.classList.contains('dark-mode');
+  if (isDarkMode) {
+    clonedElement.classList.add('dark-mode');
+    clonedElement.style.backgroundColor = '#1e1e1e';
+    clonedElement.style.color = '#e0e0e0';
+  }
 
   const opt = {
     margin: 0.5,
@@ -231,10 +221,9 @@ document.getElementById('exportBtn').addEventListener('click', function() {
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-  html2pdf().from(element).set(opt).save().catch(err => {
+
+  html2pdf().from(clonedElement).set(opt).save().catch(err => {
     alert('Failed to export PDF: ' + err);
   });
 });
-
-// Load history on page load
 window.onload = loadHistory;
