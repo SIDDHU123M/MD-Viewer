@@ -2,7 +2,7 @@
 
 ## Overview
 
-Markdown Viewer is a web-based application that allows users to write, preview, and manage their markdown content. It provides a simple interface for converting markdown text into HTML and includes features for toggling between light and dark themes, managing markdown history, and copying code blocks. Here's the website [Md-Viewer]('https://siddhu123m.github.io/MD-Viewer/')
+Markdown Viewer is a web-based application that allows users to write, preview, and manage their markdown content. It provides a simple interface for converting markdown text into HTML and includes features for toggling between light and dark themes, managing markdown history, and copying code blocks. Here's the website [Md-Viewer](https://siddhu123m.github.io/MD-Viewer/)
 
 ## Features
 
