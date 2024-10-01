@@ -15,6 +15,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
 
+  <!-- html2pdf.js for exporting to PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
   <!-- Local Dank Mono font -->
   <style>
   @font-face {
@@ -88,14 +91,14 @@ pre {
   background-color: #0056b3;
 }
 
-.btn-toggle, .btn-history {
+.btn-toggle, .btn-history, .btn-export {
   margin-bottom: 20px;
   padding: 10px 20px;
   display: flex;
   align-items: center;
 }
 
-.btn-toggle img, .btn-history img {
+.btn-toggle img, .btn-history img, .btn-export img {
   margin-right: 10px;
 }
 
@@ -182,7 +185,7 @@ body.dark-mode pre {
     flex-direction: column;
   }
 
-  .btn-toggle, .btn-history {
+  .btn-toggle, .btn-history, .btn-export {
     width: 100%;
     margin-bottom: 10px;
   }
@@ -210,12 +213,16 @@ body.dark-mode pre {
   <h1 class="text-center mb-4">Markdown Editor</h1>
   <div class="button-group">
     <button class="btn btn-secondary btn-toggle" id="toggleBtn">
-      <img src="dark-mode.svg" alt="Toggle Dark/Light Mode" width="20" height="20">
+      <img src="svg/dark-mode.svg" alt="Toggle Dark/Light Mode" width="20" height="20">
       Toggle Dark/Light Mode
     </button>
     <button class="btn btn-secondary btn-history" id="historyBtn">
-      <img src="database.svg" alt="Show History" width="20" height="20">
+      <img src="svg/database.svg" alt="Show History" width="20" height="20">
       History / Home
+    </button>
+    <button class="btn btn-secondary btn-export" id="exportBtn">
+      <img src="svg/software-download.svg" alt="Export to PDF" width="20" height="20">
+      Export to PDF
     </button>
   </div>
 
@@ -287,7 +294,7 @@ body.dark-mode pre {
 
   // Save markdown to local storage
   function saveToHistory(markdown) {
-    let history = JSON.parse(localStorage.get('markdownHistory')) || [];
+    let history = JSON.parse(localStorage.getItem('markdownHistory')) || [];
     history.push(markdown);
     localStorage.setItem('markdownHistory', JSON.stringify(history));
     loadHistory();
@@ -372,6 +379,19 @@ body.dark-mode pre {
   // Toggle Dark/Light Mode
   document.getElementById('toggleBtn').addEventListener('click', function() {
     document.body.classList.toggle('dark-mode');
+  });
+
+  // Export content to PDF
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    const element = document.getElementById('markdownContent');
+    const opt = {
+      margin:       0.5,
+      filename:     'markdown-content.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().from(element).set(opt).save();
   });
 
   // Load history on page load
