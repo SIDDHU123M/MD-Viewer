@@ -11,7 +11,19 @@
   <!-- Marked.js CDN for parsing markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+
+  <!-- Local Dank Mono font -->
   <style>
+  @font-face {
+    font-family: 'Dank Mono';
+    src: url('DankMono-Regular.otf') format('opentype');
+    font-weight: bold;
+    font-style: italic;
+  }
+
 body {
   font-family: 'Helvetica Neue', sans-serif;
   background-color: #f8f9fa;
@@ -27,19 +39,24 @@ body {
   margin-top: 20px;
 }
 
+#markdownContent h1, #markdownContent h2, #markdownContent h3 {
+  font-weight: bold;
+}
+
 #markdownContent h1 {
-  color: #007bff;
+  color: #ff6347; /* Bright color for h1 */
 }
 
 #markdownContent h2 {
-  color: #0056b3;
+  color: #ffa500; /* Bright color for h2 */
 }
 
 #markdownContent h3 {
-  color: #003f7f;
+  color: #32cd32; /* Bright color for h3 */
 }
 
 #markdownContent code {
+  font-family: 'Dank Mono', monospace;
   color: #d63384; /* Dark text for code blocks */
   padding: 2px 5px;
   border-radius: 4px;
@@ -52,6 +69,7 @@ pre {
   border-radius: 6px;
   position: relative;
   overflow: auto;
+  font-family: 'Dank Mono', monospace;
 }
 
 .copy-btn {
@@ -93,15 +111,15 @@ body.dark-mode #markdownContent {
 }
 
 body.dark-mode #markdownContent h1 {
-  color: #66b2ff;
+  color: #ff6347; /* Bright color for h1 */
 }
 
 body.dark-mode #markdownContent h2 {
-  color: #4a90e2;
+  color: #ffa500; /* Bright color for h2 */
 }
 
 body.dark-mode #markdownContent h3 {
-  color: #357ab7;
+  color: #32cd32; /* Bright color for h3 */
 }
 
 body.dark-mode #markdownContent code {
@@ -169,6 +187,21 @@ body.dark-mode pre {
     margin-bottom: 10px;
   }
 }
+
+/* Desktop view improvements */
+@media (min-width: 769px) {
+  .container {
+    max-width: 800px;
+  }
+
+  #inputSection, #renderedSection {
+    margin-top: 20px;
+  }
+
+  #markdownInput {
+    height: 300px;
+  }
+}
 </style>
 </head>
 <body>
@@ -219,6 +252,9 @@ body.dark-mode pre {
     // Inject rendered HTML into content section
     document.getElementById('markdownContent').innerHTML = renderedHTML;
 
+    // Highlight code blocks
+    Prism.highlightAll();
+
     // Hide the input section and show the rendered markdown
     document.getElementById('inputSection').style.display = 'none';
     document.getElementById('renderedSection').style.display = 'block';
@@ -251,7 +287,7 @@ body.dark-mode pre {
 
   // Save markdown to local storage
   function saveToHistory(markdown) {
-    let history = JSON.parse(localStorage.getItem('markdownHistory')) || [];
+    let history = JSON.parse(localStorage.get('markdownHistory')) || [];
     history.push(markdown);
     localStorage.setItem('markdownHistory', JSON.stringify(history));
     loadHistory();
