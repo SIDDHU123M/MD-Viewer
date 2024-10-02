@@ -24,7 +24,7 @@ A modern and responsive Markdown Viewer that allows users to input, preview, exp
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/markdown-viewer.git
+   git clone https://github.com/SIDDHU123M/MD-Viewer.git
    ```
    
 2. **Navigate to the project directory**:
